@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  postgresql:
+    image: postgres:13
+    restart: always
+    ports:
+      - 25432:5432
+    env_file: .env
+    environment:
+      TZ: "UTC"
+    # volumes:
+    #   - ./postgres/init:/docker-entrypoint-initdb.d
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 23306:3306
+    env_file: .env
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 28080:8080
+    env_file: .env
+    environment: []
+    depends_on:
+      - postgresql
+      - mysql
+    volumes:
+      - ./adminer/plugins/auto-login.php:/var/www/html/plugins/auto-login.php
+      - ./adminer/plugins-enabled/auto-login.php:/var/www/html/plugins-enabled/auto-login.php
+
+  # pgadmin4:
+  #   image: dpage/pgadmin4:4
+  #   ports:
+  #     - 20080:80
+  #   volumes:
+  #     - ./images/servers.json:/pgadmin4/servers.json
+  #     # - ./pgadmin:/var/lib/pgadmin/storage
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: root
+  #     PGADMIN_DEFAULT_PASSWORD: password@1
+  #   depends_on:
+  #     - postgresql
+  #   restart: always
+  # plantuml:
+  #   image: plantuml/plantuml-server:jetty
+  #   ports:
+  #     - 23080:8080
+  #   restart: always
