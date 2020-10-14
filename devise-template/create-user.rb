@@ -74,10 +74,10 @@ def configure_devise
   end
   # モデル毎に使うコントローラーを指定する
   inject_into_file "config/routes.rb", after: "devise_for :users" do
-    ", controllers: { sessions: 'users/sessions', registrations: 'users/registrations' }"
+    ", controllers: { sessions: 'users/sessions', registrations: 'users/registrations' }, sign_out_via: [:get, :delete]"
   end
   inject_into_file "config/routes.rb", after: "devise_for :admins" do
-    ", controllers: { sessions: 'admins/sessions' }"
+    ", controllers: { sessions: 'admins/sessions' }, sign_out_via: [:get, :delete]"
   end
 
   # テンプレートファイルから生成
@@ -105,6 +105,42 @@ def configure_devise
   inject_into_class "app/controllers/admins/sessions_controller.rb", "Admins::SessionsController", <<-'CODE'
   include SoloAccessible
   skip_before_action :check_solo, only: :destroy
+  CODE
+
+  # loginに利用するパラメータを読み込めるよう設定
+  inject_into_class "app/controllers/application_controller.rb", "ApplicationController" do
+    <<-'CODE'
+  before_action :configure_permitted_parameters, if: :devise_controller?
+  protected
+  def configure_permitted_parameters
+    added_attrs = [:username, :email, :password, :password_confirmation, :remember_me]
+    devise_parameter_sanitizer.permit :sign_up, keys: added_attrs
+    devise_parameter_sanitizer.permit :account_update, keys: added_attrs
+  end
+    CODE
+  end
+  # loginに利用するパラメータを送信するようにViewを変更
+  gsub_file "app/views/users/sessions/new.html.erb", "f.label :email", "f.label :login"
+  gsub_file "app/views/users/sessions/new.html.erb", "f.email_field :email", "f.email_field :login"
+
+  # testを追加
+  test_files = Dir.glob("#{__dir__}/test/**/*.*").map { |p| p.gsub(/^#{__dir__}\//, "") }
+  test_files.each do |f|
+    copy_file f, force: true
+  end
+  # %w( test/fixtures/users.yml
+  #     test/fixtures/user_identities.yml
+  #     test/fixtures/admins.yml
+  #   ).each do | filename |
+  # end
+
+  inject_into_file "test/test_helper.rb", <<-'CODE'.strip_heredoc, after: "end\n"
+    if ENV.fetch("LOG_OUTPUT_CONSOLE", false)
+       # ログをコンソールに出力する
+       Rails.logger = Logger.new(STDOUT) # 追記
+       # SQLのログ
+       # ActiveRecord::Base.logger = Logger.new(STDOUT) # 追記
+    end
   CODE
 end
 
