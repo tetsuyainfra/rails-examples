@@ -14,7 +14,8 @@ class LoginTest < ActionDispatch::IntegrationTest
     # ActionController::Base.allow_forgery_protection = false
   end
 
-  test "LoginToSignout" do
+  test "User between login to signout" do
+    # Login
     get user_session_path # /users/sign_in
     assert_response :success
 
@@ -22,6 +23,31 @@ class LoginTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     follow_redirect!
 
+    assert_response :success
+    assert_equal root_path, path
+
+    # Signout with GET
+    get destroy_user_session_path
+    follow_redirect!
+    assert_response :success
+    assert_equal root_path, path
+  end
+
+  test "Admin between login to signout" do
+    # Admin Login
+    get admin_session_path # /admins/sign_in
+    assert_response :success
+
+    post admin_session_path, params: admin_user_params
+    assert_response :redirect
+    follow_redirect!
+
+    assert_response :success
+    assert_equal root_path, path
+
+    # Signout with GET
+    get destroy_admin_session_path
+    follow_redirect!
     assert_response :success
     assert_equal root_path, path
   end
@@ -32,6 +58,16 @@ class LoginTest < ActionDispatch::IntegrationTest
         login: users(:one).email,
         # email: users(:one).email,
         password: "password1",
+        remember_me: "0",
+      },
+    }
+  end
+
+  def admin_user_params
+    {
+      admin: {
+        email: admins(:one).email,
+        password: "password@",
         remember_me: "0",
       },
     }
