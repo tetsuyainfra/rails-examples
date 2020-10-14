@@ -14,13 +14,11 @@ class LoginTest < ActionDispatch::IntegrationTest
     # ActionController::Base.allow_forgery_protection = false
   end
 
-  test "Login" do
+  test "LoginToSignout" do
     get user_session_path # /users/sign_in
     assert_response :success
 
-    # pp one_user_params
     post user_session_path, params: one_user_params
-    # pp response
     assert_response :redirect
     follow_redirect!
 
