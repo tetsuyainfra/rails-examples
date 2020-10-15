@@ -119,9 +119,13 @@ def configure_devise
   end
     CODE
   end
+  # Viewの表示を変更
+  gsub_file "app/views/admins/sessions/new.html.erb", "<h2>Log in</h2>", "<h2>Admin Log in</h2>"
+  gsub_file "app/views/users/sessions/new.html.erb", "<h2>Log in</h2>", "<h2>User Log in</h2>"
+
   # loginに利用するパラメータを送信するようにViewを変更
   gsub_file "app/views/users/sessions/new.html.erb", "f.label :email", "f.label :login"
-  gsub_file "app/views/users/sessions/new.html.erb", "f.email_field :email", "f.email_field :login"
+  gsub_file "app/views/users/sessions/new.html.erb", "f.email_field :email", "f.text_field :login"
 
   # testを追加
   test_files = Dir.glob("#{__dir__}/test/**/*.*").map { |p| p.gsub(/^#{__dir__}\//, "") }
@@ -150,4 +154,7 @@ after_bundle do
   configure_devise
 
   setup_page_controler
+
+  copy_file "run_sample.sh", "run_sample.sh"
+  chmod "run_sample.sh", 0755
 end
