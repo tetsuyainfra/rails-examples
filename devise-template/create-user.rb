@@ -13,9 +13,9 @@ gem("devise")
 # route "root to: 'people#index'"
 # rails_command("db:migrate")
 
+# Database config for postgresql
 remove_file "config/database.yml"
-# database名変えたいのでtemplate_fileにした方がよい
-copy_file "config/database.yml"
+template "config/database.yml.tt"
 
 def setup_git
   # git :init

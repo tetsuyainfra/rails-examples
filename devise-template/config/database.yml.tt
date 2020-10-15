@@ -6,24 +6,24 @@
 #
 default: &default
   adapter: postgresql
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  pool: <%%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
-  username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD") { "password" } %>
+  username: <%%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
+  password: <%%= ENV.fetch("POSTGRES_PASSWORD") { "password" } %>
   host: localhost
   port: 25432
 
 development:
   <<: *default
-  database: rails_development
+  database: <%= app_name.underscore %>_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: rails_test
+  database: <%= app_name.underscore %>_test
 
 production:
   <<: *default
-  database: rails_production
+  database: <%= app_name.underscore %>_production
