@@ -18,6 +18,11 @@ rails new Myapp -m devise-template/create-user.rb
 
 ```
 
+# 既知の不具合
+
+- Javascript を無効化すると HTTP で Delete が送信できないのでブラウザから Destroy できない
+  - 導入されるはずの jQuery で Hook できないため
+
 # MEMO
 
 ```
@@ -34,6 +39,6 @@ rails new Myapp -m devise-template/create-user.rb -B --skip-webpack-install
 Adminer のプラグインとして独立したソフトウェアと考えられるので多分大丈夫だと思いますが、
 何かあれば Adminer のプラグインとして取り込まれるまでオートログインの設定は消えます。
 
-```
+# References
 
-```
+- https://docs.ruby-lang.org/en/2.6.0/Bundler/Thor/Actions.html

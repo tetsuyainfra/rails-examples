@@ -9,6 +9,14 @@ gem("pg")
 # AUTH
 gem("devise")
 
+gem_group :development do
+  gem "pry-rails"
+  gem "pry-byebug"
+  gem "pry-doc"
+  # gem 'better_errors'
+  # gem 'binding_of_caller'
+end
+
 # generate(:scaffold, "Us name:string")
 # route "root to: 'people#index'"
 # rails_command("db:migrate")
@@ -18,9 +26,9 @@ remove_file "config/database.yml"
 template "config/database.yml.tt"
 
 def setup_git
-  # git :init
-  # git add: "."
-  # git commit: %Q{ -m 'Initial commit' }
+  git :init
+  git add: "."
+  git commit: %Q{ -m 'Initial commit' }
 end
 
 def setup_page_controler
@@ -50,7 +58,7 @@ def setup_page_controler
 end
 
 def setup_devise
-  run "bundle exec spring stop"
+  # run "bundle exec spring stop"
   generate "devise:install"
 
   generate "devise", "User", "username:string:unique", "displayname:string"
@@ -149,7 +157,7 @@ def configure_devise
 end
 
 after_bundle do
-  # setup_git
+  setup_git
   setup_devise
   configure_devise
 
@@ -157,4 +165,7 @@ after_bundle do
 
   copy_file "run_sample.sh", "run_sample.sh"
   chmod "run_sample.sh", 0755
+
+  git add: "."
+  git commit: %Q{ -m 'commit applied devise' }
 end
