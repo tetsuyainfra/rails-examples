@@ -26,8 +26,9 @@ def configure_can
 CODE
 
     _t = target.singularize
-    _code = "<td><%= link_to 'Destroy', #{_t}, method: :delete, data: { confirm: 'Are you sure?' } %></td>\n"
-    inject_into_file _path, <<-"CODE", after: _code
+    # _code = "<td><%= link_to 'Destroy', #{_t}, method: :delete, data: { confirm: 'Are you sure?' } %></td>\n" #before version
+    _code = "      </tr>\n    <% end %>\n  </tbody>"
+    inject_into_file _path, <<-"CODE", before: _code
         <th><%= can? :manage, #{_t} %></th>
         <th><%= can? :read, #{_t} %></th>
         <th><%= can? :update, #{_t} %></th>

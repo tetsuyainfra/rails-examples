@@ -60,7 +60,7 @@ def configure_views
     CODE
 
     # gsub_file "app/views/#{word}/index.html.erb", 'colspan="3"', 'colspan="4"' # cancancanと干渉する・・・
-    gsub_file "app/views/#{word}/index.html.erb", '<th colspan="3"></th>', "<th colspan=\"3\"></th>\n<th></th>"
+    gsub_file "app/views/#{word}/index.html.erb", '<th colspan="3"></th>', "<th colspan=\"3\"></th>\n      <th></th>"
     inject_into_file "app/views/#{word}/index.html.erb", <<-"CODE", after: "data: { confirm: 'Are you sure?' } %></td>\n"
         <td>
           <%= form_with model: #{word.singularize}, method: :delete do |form| %>
