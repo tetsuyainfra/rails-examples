@@ -136,7 +136,7 @@ def configure_devise
   gsub_file "app/views/users/sessions/new.html.erb", "f.email_field :email", "f.text_field :login"
 
   # testを追加
-  test_files = Dir.glob("#{__dir__}/test/**/*.*").map { |p| p.gsub(/^#{__dir__}\//, "") }
+  test_files = Dir.glob("#{__dir__}/test/{fixtures,integration}/*.*").map { |p| p.gsub(/^#{__dir__}\//, "") }
   test_files.each do |f|
     copy_file f, force: true
   end
@@ -146,7 +146,28 @@ def configure_devise
   #   ).each do | filename |
   # end
 
-  inject_into_file "test/test_helper.rb", <<-'CODE'.strip_heredoc, after: "end\n"
+  inject_into_file "test/test_helper.rb", <<-'CODE', before: "end"
+  def log_in(user)
+    if defined?(:login_as)
+      #use warden helper
+      login_as(user, :scope => :user)
+    else #controller_test, model_test
+      #use devise helper
+      sign_in(user)
+    end
+  end
+  def log_out(scope = :user)
+    if defined?(:login_as)
+      #use warden helper
+      logout(scope)
+    else #controller_test, model_test
+      #use devise helper
+      sign_out scope
+    end
+  end
+  CODE
+
+  append_to_file "test/test_helper.rb", <<-'CODE'.strip_heredoc
     if ENV.fetch("LOG_OUTPUT_CONSOLE", false)
        # ログをコンソールに出力する
        Rails.logger = Logger.new(STDOUT) # 追記

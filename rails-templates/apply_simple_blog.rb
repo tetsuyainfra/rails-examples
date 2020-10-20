@@ -30,6 +30,16 @@ def configure_models
   inject_into_class "app/models/post.rb", "Post", "  has_many :comments, dependent: :delete_all\n"
 end
 
+def configure_contollers
+  # 関係を追加(実運用ではこの実装は使わず論理削除、ステートなどを利用すること)
+  inject_into_class "app/controllers/blogs_controller.rb", "BlogsController",
+                    "  before_action :authenticate_user!, except: [:index, :show]\n"
+  inject_into_class "app/controllers/posts_controller.rb", "PostsController",
+                    "  before_action :authenticate_user!, except: [:index, :show]\n"
+  inject_into_class "app/controllers/comments_controller.rb", "CommentsController",
+                    "  before_action :authenticate_user!, except: [:index, :show]\n"
+end
+
 def configure_views
   inject_into_file "app/views/layouts/application.html.erb", <<-'CODE', after: "<%= yield %>\n"
     <div>
@@ -47,6 +57,16 @@ def configure_views
         <option value="<%= user.id %>"><%= user.username %></option>
       <% end %>
     </datalist>
+    CODE
+
+    # gsub_file "app/views/#{word}/index.html.erb", 'colspan="3"', 'colspan="4"' # cancancanと干渉する・・・
+    gsub_file "app/views/#{word}/index.html.erb", '<th colspan="3"></th>', "<th colspan=\"3\"></th>\n<th></th>"
+    inject_into_file "app/views/#{word}/index.html.erb", <<-"CODE", after: "data: { confirm: 'Are you sure?' } %></td>\n"
+        <td>
+          <%= form_with model: #{word.singularize}, method: :delete do |form| %>
+            <%= form.submit :delete %>
+          <% end %>
+        </td>
     CODE
   end
 
@@ -83,6 +103,13 @@ CODE
 CODE
 end
 
+def configure_tests
+  %w(blogs posts comments).each do |word|
+    _path = "test/controllers/#{word}_controller_test.rb"
+    copy_file "cancancan/#{_path}", _path, force: true
+  end
+end
+
 def configure_fixtures
   gsub_file "test/fixtures/blogs.yml", /(.*)status: 1/m, '\1status:  0'
 end
@@ -90,7 +117,9 @@ end
 after_bundle do
   create_models
   configure_models
+  configure_contollers
   configure_views
+  configure_tests
   configure_fixtures
 
   git add: "."

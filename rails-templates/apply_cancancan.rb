@@ -12,9 +12,13 @@ end
 
 def configure_can
   %w(blogs posts comments).each do |target|
+    inject_into_file "app/controllers/#{target}_controller.rb",
+      "  load_and_authorize_resource except: [:new]\n",
+      before: "  before_action :set_#{target.singularize}"
+
     # config_can
     _path = "app/views/#{target}/index.html.erb"
-    inject_into_file _path, <<-'CODE', after: "<th colspan=\"3\"></th>\n"
+    inject_into_file _path, <<-"CODE", before: "    </tr>\n  </thead>"
       <th>:manage</th>
       <th>:read</th>
       <th>:update</th>
@@ -43,12 +47,20 @@ CODE
 
     # Comment
     can :read, Comment, post: { blog: { status: Blog.statuses[:published] } }
-    can [:read, :destroy], Comment, user_id: user.id
+    can [:read, :destroy, :create], Comment, user_id: user.id
 CODE
 
-  inject_into_class "app/controllers/blogs_controller.rb", "BlogsController", "  load_and_authorize_resource\n"
-  inject_into_class "app/controllers/posts_controller.rb", "PostsController", "  load_and_authorize_resource\n"
-  inject_into_class "app/controllers/comments_controller.rb", "CommentsController", "  load_and_authorize_resource\n"
+  _code = "before_action :configure_permitted_parameters, if: :devise_controller?\n"
+  inject_into_file "app/controllers/application_controller.rb", <<-'CODE', after: _code
+  rescue_from CanCan::AccessDenied do |exception|
+    respond_to do |format|
+      format.json { head :forbidden, content_type: "text/html" }
+      format.html { redirect_to main_app.root_url, notice: exception.message }
+      format.js { head :forbidden, content_type: "text/html" }
+    end
+  end
+
+  CODE
 end
 
 after_bundle do
