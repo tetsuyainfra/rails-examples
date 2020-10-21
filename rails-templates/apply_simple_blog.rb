@@ -103,13 +103,6 @@ CODE
 CODE
 end
 
-def configure_tests
-  %w(blogs posts comments).each do |word|
-    _path = "test/controllers/#{word}_controller_test.rb"
-    copy_file "cancancan/#{_path}", _path, force: true
-  end
-end
-
 def configure_fixtures
   gsub_file "test/fixtures/blogs.yml", /(.*)status: 1/m, '\1status:  0'
 end
@@ -119,7 +112,6 @@ after_bundle do
   configure_models
   configure_contollers
   configure_views
-  configure_tests
   configure_fixtures
 
   git add: "."

@@ -22,6 +22,8 @@ rails new Myapp -m devise-template/create-user.rb
 
 - Javascript を無効化すると HTTP で Delete が送信できないのでブラウザから Destroy できない
   - 導入されるはずの jQuery で Hook できないため
+- BlogSample
+  - test 未実装
 
 # MEMO
 

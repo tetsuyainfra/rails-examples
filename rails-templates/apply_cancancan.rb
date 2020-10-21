@@ -64,10 +64,18 @@ CODE
   CODE
 end
 
+def configure_tests
+  %w(blogs posts comments).each do |word|
+    _path = "test/controllers/#{word}_controller_test.rb"
+    copy_file "cancancan/#{_path}", _path, force: true
+  end
+end
+
 after_bundle do
   # run "bundle exec spring stop"
   setup_can
   configure_can
+  configure_tests
 
   git add: "."
   git commit: %Q{ -m 'commit applied cancancan' }
