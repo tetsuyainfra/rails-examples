@@ -1,4 +1,5 @@
 # create-user.rb
+# TODO: RegistrationControllerのview書き換え username/displaynameがだめぽ
 def source_paths
   [__dir__]
 end
@@ -96,6 +97,13 @@ def configure_devise
   ).each do |filename|
     remove_file filename
     template "#{filename}.tt"
+  end
+  # ファイルからコピー
+  %w(
+    app/views/registrations/new.html.erb
+  ).each do |filename|
+    remove_file filename
+    copy_file "#{filename}"
   end
 
   # controllerのカスタマイズ(Admin/Userどちらかのモデルを利用したログインしか許可しない)
