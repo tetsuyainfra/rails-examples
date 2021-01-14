@@ -10,8 +10,8 @@ default: &default
   timeout: 5000
   username: <%%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
   password: <%%= ENV.fetch("POSTGRES_PASSWORD") { "password" } %>
-  host: localhost
-  port: 25432
+  host: <%%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
+  port: <%%= ENV.fetch("POSTGRES_PORT") { 25432 } %>
 
 development:
   <<: *default
