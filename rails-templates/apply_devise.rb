@@ -18,6 +18,12 @@ gem_group :development do
   # gem 'binding_of_caller'
 end
 
+# for email
+gem_group :development do
+  gem "letter_opener"
+  gem "letter_opener_web"
+end
+
 # generate(:scaffold, "Us name:string")
 # route "root to: 'people#index'"
 # rails_command("db:migrate")
@@ -100,7 +106,7 @@ def configure_devise
   end
   # ファイルからコピー
   %w(
-    app/views/registrations/new.html.erb
+    app/views/users/registrations/new.html.erb
   ).each do |filename|
     remove_file filename
     copy_file "#{filename}"
@@ -185,12 +191,18 @@ def configure_devise
   CODE
 end
 
+def configure_letter_opener_web
+  route "mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?"
+end
+
 after_bundle do
   setup_git
   setup_devise
   configure_devise
 
   setup_page_controler
+
+  configure_letter_opener_web
 
   copy_file "run_sample.sh", "run_sample.sh"
   chmod "run_sample.sh", 0755
