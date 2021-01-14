@@ -20,7 +20,7 @@ end
 
 # for email
 gem_group :development do
-  gem "letter_opener"
+  # gem "letter_opener"
   gem "letter_opener_web"
 end
 
@@ -46,6 +46,7 @@ def setup_page_controler
     <<-'TEXT'
     <p class="notice"><%= notice %></p>
     <p class="alert"><%= alert %></p>
+    <p><a href="/letter_opener">letter_opener</a></p>
     <p>
       <% if user_signed_in? %>
         <%= link_to "#{current_user.username} Logout", destroy_user_session_path, :method => :delete %>
@@ -192,6 +193,7 @@ def configure_devise
 end
 
 def configure_letter_opener_web
+  environment "config.action_mailer.delivery_method = :letter_opener_web", env: "development"
   route "mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?"
 end
 
