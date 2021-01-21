@@ -1,36 +1,39 @@
 # create-user.rb
 # TODO: RegistrationControllerのview書き換え username/displaynameがだめぽ
 def source_paths
-  [__dir__]
+  # [__dir__]
+  [Pathname.new(__dir__).join("./devise").to_s]
 end
 
-# DATABASE
-gem("pg")
+def apply_template!
+  # DATABASE
+  gem("pg")
 
-# AUTH
-gem("devise")
+  # AUTH
+  gem("devise")
 
-gem_group :development do
-  gem "pry-rails"
-  gem "pry-byebug"
-  gem "pry-doc"
-  # gem 'better_errors'
-  # gem 'binding_of_caller'
+  gem_group :development do
+    gem "pry-rails"
+    gem "pry-byebug"
+    gem "pry-doc"
+    # gem 'better_errors'
+    # gem 'binding_of_caller'
+  end
+
+  # for email
+  gem_group :development do
+    # gem "letter_opener"
+    gem "letter_opener_web"
+  end
+
+  # generate(:scaffold, "Us name:string")
+  # route "root to: 'people#index'"
+  # rails_command("db:migrate")
+
+  # Database config for postgresql
+  remove_file "config/database.yml"
+  template "config/database.yml.tt"
 end
-
-# for email
-gem_group :development do
-  # gem "letter_opener"
-  gem "letter_opener_web"
-end
-
-# generate(:scaffold, "Us name:string")
-# route "root to: 'people#index'"
-# rails_command("db:migrate")
-
-# Database config for postgresql
-remove_file "config/database.yml"
-template "config/database.yml.tt"
 
 def setup_git
   git :init
@@ -151,7 +154,7 @@ def configure_devise
   gsub_file "app/views/users/sessions/new.html.erb", "f.email_field :email", "f.text_field :login"
 
   # testを追加
-  test_files = Dir.glob("#{__dir__}/test/{fixtures,integration}/*.*").map { |p| p.gsub(/^#{__dir__}\//, "") }
+  test_files = Dir.glob("#{__dir__}/devise/test/{fixtures,integration}/*.*").map { |p| p.gsub(/^#{__dir__}\/devise\//, "") }
   test_files.each do |f|
     copy_file f, force: true
   end
@@ -212,3 +215,5 @@ after_bundle do
   git add: "."
   git commit: %Q{ -m 'commit applied devise' }
 end
+
+apply_template!

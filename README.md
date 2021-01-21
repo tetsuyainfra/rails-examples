@@ -25,6 +25,14 @@ rails new Myapp -m devise-template/create-user.rb
 - BlogSample
   - test 未実装
 
+# 依存関係
+
+- apply_devise.rb
+  - apply_omniauth.rb
+    - apply_simple_blog.rb
+      - apply_cancancan.rb
+      - apply_pundit.rb
+
 # MEMO
 
 ```

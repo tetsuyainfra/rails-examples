@@ -1,9 +1,14 @@
 # apply_cancancan.rb
-def source_paths
-  [__dir__]
-end
 
 apply "#{__dir__}/apply_simple_blog.rb"
+
+def source_paths
+  [Pathname.new(__dir__).join("./devise").to_s,
+   Pathname.new(__dir__).join("./omniauth").to_s,
+   Pathname.new(__dir__).join("./simple_blog").to_s,
+   Pathname.new(__dir__).join("./cancancan").to_s]
+end
+
 gem "cancancan"
 
 def setup_can
@@ -67,7 +72,7 @@ end
 def configure_tests
   %w(blogs posts comments).each do |word|
     _path = "test/controllers/#{word}_controller_test.rb"
-    copy_file "cancancan/#{_path}", _path, force: true
+    copy_file "#{_path}", _path, force: true
   end
 end
 

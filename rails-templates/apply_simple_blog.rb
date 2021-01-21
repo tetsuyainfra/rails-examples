@@ -1,9 +1,11 @@
 # apply_cancancan.rb
 
-apply "#{__dir__}/apply_devise.rb"
+apply "#{__dir__}/apply_omniauth.rb"
 
 def source_paths
-  [__dir__]
+  [Pathname.new(__dir__).join("./devise").to_s,
+   Pathname.new(__dir__).join("./omniauth").to_s,
+   Pathname.new(__dir__).join("./simple_blog").to_s]
 end
 
 def create_models

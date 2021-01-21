@@ -1,9 +1,13 @@
 # apply_pundit.rb
+apply "#{__dir__}/apply_simple_blog.rb"
+
 def source_paths
-  [__dir__]
+  [Pathname.new(__dir__).join("./devise").to_s,
+   Pathname.new(__dir__).join("./omniauth").to_s,
+   Pathname.new(__dir__).join("./simple_blog").to_s,
+   Pathname.new(__dir__).join("./pundit").to_s]
 end
 
-apply "#{__dir__}/apply_simple_blog.rb"
 gem "pundit"
 
 def setup_pundit
@@ -51,13 +55,13 @@ CODE
 CODE
 
     _path = "app/controllers/#{target}_controller.rb"
-    copy_file "pundit/#{_path}", _path, force: true
+    copy_file "#{_path}", _path, force: true
 
     _path = "app/policies/#{target.singularize}_policy.rb"
-    copy_file "pundit/#{_path}", _path, force: true
+    copy_file "#{_path}", _path, force: true
 
     _path = "test/controllers/#{target}_controller_test.rb"
-    copy_file "pundit/#{_path}", _path, force: true
+    copy_file "#{_path}", _path, force: true
   end
 end
 
@@ -67,6 +71,6 @@ after_bundle do
   git commit: %Q{ -m 'commit setup pundit' }
 
   configure_pundit
-  # git add: "."
-  # git commit: %Q{ -m 'commit applied pundit config' }
+  git add: "."
+  git commit: %Q{ -m 'commit applied pundit config' }
 end
