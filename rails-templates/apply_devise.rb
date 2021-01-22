@@ -41,33 +41,6 @@ def setup_git
   git commit: %Q{ -m 'Initial commit' }
 end
 
-def setup_page_controler
-  generate "controller Page index help"
-  route "root to: 'page#index'"
-
-  inject_into_file "app/views/layouts/application.html.erb", after: "<body>\n" do
-    <<-'TEXT'
-    <p class="notice"><%= notice %></p>
-    <p class="alert"><%= alert %></p>
-    <p><a href="/letter_opener">letter_opener</a></p>
-    <p>
-      <% if user_signed_in? %>
-        <%= link_to "#{current_user.username} Logout", destroy_user_session_path, :method => :delete %>
-      <% else %>
-        <a href="<%= user_session_path %>">user</a>
-      <% end %>
-    </p>
-    <p>
-      <% if admin_signed_in? %>
-        <%= link_to "#{current_admin.email} Logout", destroy_admin_session_path, :method => :delete %>
-      <% else %>
-        <a href="<%= admin_session_path %>">admin</a>
-      <% end %>
-    </p>
-    TEXT
-  end
-end
-
 def setup_devise
   # run "bundle exec spring stop"
   generate "devise:install"
@@ -200,11 +173,53 @@ def configure_letter_opener_web
   route "mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?"
 end
 
+def setup_guest_session_controler
+  copy_file "app/controllers/users/guest_sessions_controller.rb"
+  # view/layoutsはsetup_page_controlerにて
+  route <<-'CODE'
+  devise_scope :user do
+    get "users/guest_sign_in", to: "users/guest_sessions#new_guest"
+  end
+  CODE
+end
+
+def setup_page_controler
+  generate "controller Page index help"
+  route "root to: 'page#index'"
+
+  inject_into_file "app/views/layouts/application.html.erb", after: "<body>\n" do
+    <<-'TEXT'
+    <p class="notice"><%= notice %></p>
+    <p class="alert"><%= alert %></p>
+    <p><a href="/letter_opener">letter_opener</a></p>
+    <p>
+      <% if user_signed_in? %>
+        <%= link_to "Edit", edit_user_registration_path %>
+        <%= link_to "#{current_user.username} Logout", destroy_user_session_path, :method => :delete %>
+      <% else %>
+        <a href="<%= user_session_path %>">user</a>
+        <% for i in Users::GuestSessionsController::GUEST_ACCOUNT_RANGE %>
+          <%= link_to "Login as guest#{i}", users_guest_sign_in_path(no: i), method: :get %>
+        <% end %>
+      <% end %>
+    </p>
+    <p>
+      <% if admin_signed_in? %>
+        <%= link_to "#{current_admin.email} Logout", destroy_admin_session_path, :method => :delete %>
+      <% else %>
+        <a href="<%= admin_session_path %>">admin</a>
+      <% end %>
+    </p>
+    TEXT
+  end
+end
+
 after_bundle do
   setup_git
   setup_devise
   configure_devise
 
+  setup_guest_session_controler
   setup_page_controler
 
   configure_letter_opener_web

@@ -12,3 +12,5 @@ rails new PunSample    -m rails-templates/apply_pundit.rb   --skip-javascript --
 # pushd CanSample
 #   rails app:template LOCATION=../rails-templates/apply_cancancan.rb
 # popd
+
+echo "Finished applying template."
